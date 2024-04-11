@@ -1,5 +1,3 @@
-Habit Tracker
-Introduction
 This is a Python program for tracking habits. It allows users to create, remove, analyze, and modify habits.
 
 Requirements
