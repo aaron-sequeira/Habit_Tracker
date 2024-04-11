@@ -27,7 +27,7 @@ auth = mysql.connector.connect(
 
 # The main class to create a new habit object with a default constructor and multiple methods
 class Habit:
-
+    #This is a non parameterized constructor That is used for users to login or register to an account
     def __init__(self):
         loop = 0
         while loop != 4:
@@ -54,7 +54,8 @@ class Habit:
 
             if choice == 'register':
                     self.register()
-
+                
+    #This is the register function to create an account for your habits by sending request to the database
     def register(self):
         username = questionary.text("Enter your username").ask()
         password = questionary.password("Enter your password").ask()
@@ -157,7 +158,7 @@ class Habit:
 
     """This function starts when the timer_function unchecks the habit. The function then sets a timer
     ,the timer keeps on running while the habit is unchecked, when the timer runs-out the habit is 
-    said to be broken and is removed from the database using the removehabit_without_input function"""
+    said to be broken and the streak is reset"""
     def timer_function_false(self,habitName,check,clname):
             elapsed_time = 0
             cursor = mydb.cursor()
@@ -173,6 +174,10 @@ class Habit:
                     cursor.execute("UPDATE "+clname+" SET streak = '0' WHERE name = '"+habitName+"'")
                     mydb.commit()
                     break
+                    
+    """The function weekly sets a timer when a habit is checked-off and is set to true by the user 
+    it also adds one to the Day Streak counter and unchecks the habit setting it to false
+    while starting a thread habit_Timer_False_Weekly when the timer goes to 0"""
     def timer_function_weekly(self, habitName,clname):
         elapsed_time = 0
         while elapsed_time != 50:
@@ -191,7 +196,10 @@ class Habit:
                 habit_Timer_False_weekly = threading.Thread(target=self.timer_function_false_weekly,args=[habitName,clname])
                 habit_Timer_False_weekly.start()
                 break          
-
+                
+    """This function starts when the timer_function_Weekly unchecks the habit. The function then sets a timer
+    ,the timer keeps on running while the habit is unchecked, when the timer runs-out the habit is 
+    said to be broken and the streak is reset"""
     def timer_function_false_weekly(self,habitName,clname):
             elapsed_time = 0
             cursor = mydb.cursor()
@@ -218,8 +226,8 @@ class Habit:
 
     """This function allows the user to check-off a habit by asking the user to input the name of the
     habit. It searches for the habit till it finds the name and checks-off the habit setting it to true
-    and starting the timer_thread which start the timer_function with the argumets as habitName and 
-    the habit dictionary itself(i). If the habit is already checked-off, it will say that the habit
+    and check the habit type to start the timer_thread which starts the timer_function with the argumets as habitName and 
+    the username depending on the habit type the functions differ. If the habit is already checked-off, it will say that the habit
     is already checked-off and sends you back to the menu."""
     def checkOff(self,clname):
         mycursor = mydb.cursor()
@@ -294,7 +302,7 @@ class Habit:
         record = cursor.fetchall()
         df = pd.DataFrame(record)
         print(tabulate(df,headers=header,tablefmt="fancy_grid"))
-
+    #This function tells the user which habits are in the catagory of daily habits 
     def Daily_habits(self,clname):
         cursor = mydb.cursor()
         cursor.execute("SELECT * FROM "+clname+" WHERE Habit_Type = 'Daily'")
@@ -302,7 +310,7 @@ class Habit:
         header = ['Habits','time_Since_Creation','hours','Date','minutes_Saved','Checked','Streak','Type','Check_Date']
         df = pd.DataFrame(record)
         print(tabulate(df,headers=header,tablefmt="fancy_grid"))
-
+    #This function tells the user which habits are in the catagory of weekly habits 
     def Weekly_habits(self,clname):
         cursor = mydb.cursor()
         cursor.execute("SELECT * FROM "+clname+" WHERE Habit_Type = 'Weekly'")
@@ -311,6 +319,7 @@ class Habit:
         df = pd.DataFrame(record)
         print(tabulate(df,headers=header,tablefmt="fancy_grid"))
 
+    #This function helps modify the data given by the user 
     def Modify(self,clname):
         cursor = mydb.cursor()
         loop = 0
@@ -393,7 +402,7 @@ class Habit:
                 print("You have exited analyzation")
                 break
 
-# This is the main core of the code. It is the main function which helps the user handle his habits
+# This is the main core of the code. It is the main function which helps the user handle his habits and initializes the constructor
 if __name__ == '__main__':
     habit = Habit()   
     loop = 0
